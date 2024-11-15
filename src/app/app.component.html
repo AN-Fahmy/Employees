@@ -15,6 +15,30 @@
         'is-invalid': employeeFrom.get('email')?.touched && employeeFrom.get('email')?.getError('required') || employeeFrom.get('email')?.getError('email')
         }"  formControlName="email" type="email" class="form-control" placeholder="Email...">
 
+      <!-- Skills Inputs -->
+      <input [ngClass]="{
+        'is-valid': !employeeFrom.get('newSkill')?.getError('required') && employeeFrom.get('newSkill')?.touched,
+        'is-invalid': employeeFrom.get('newSkill')?.touched && employeeFrom.get('newSkill')?.getError('required')
+        }" formControlName="newSkill" type="text" class="form-control" placeholder="Skill...">
+
+      <h4 class="my-1">Add Skills :
+        <button type="button" class="btn btn-sm btn-success" (click)="addSkills()" [disabled]="skills().length >= 5">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </h4>
+      <div formArrayName="skills">
+        <ng-container *ngFor="let skill of skills().controls; let i = index">
+          <div [formGroupName]="i">
+            <div class="d-flex gap-2 mb-2">
+              <input [ngClass]="{
+                'is-valid': !skill.get('skill')?.getError('required') && skill.get('skill')?.touched,
+                'is-invalid': skill.get('skill')?.touched && skill.get('skill')?.getError('required')
+                }" formControlName="skill" type="text" class="form-control" placeholder="Skills...">
+              <button class="btn btn-sm btn-danger" (click)="removeSkill(i)"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
 
       <!-- Gender Inputs -->
       <div class="d-flex flex-column">
@@ -33,43 +57,28 @@
         }" formControlName="gender" id="female" type="radio" class="cr" name="gender" value="Female">
         </div>
       </div>
-
-      <!-- Skills Inputs -->
-      <input [ngClass]="{
-        'is-valid': !employeeFrom.get('newSkill')?.getError('required') && employeeFrom.get('newSkill')?.touched,
-        'is-invalid': employeeFrom.get('newSkill')?.touched && employeeFrom.get('newSkill')?.getError('required')
-        }" formControlName="newSkill" type="text" class="form-control" placeholder="Skill...">
-
-      <h4 class="my-3">Add Skills :
-        <button type="button" class="btn btn-sm btn-success" (click)="addSkills()" [disabled]="skills().length >= 5">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </h4>
-      <div formArrayName="skills">
-        <ng-container *ngFor="let skill of skills().controls; let i = index">
-          <div [formGroupName]="i">
-            <div class="d-flex gap-2 mb-2">
-              <input [ngClass]="{
-                'is-valid': !skill.get('skill')?.getError('required') && skill.get('skill')?.touched,
-                'is-invalid': skill.get('skill')?.touched && skill.get('skill')?.getError('required')
-                }" formControlName="skill" type="text" class="form-control" placeholder="Skills...">
-              <button class="btn btn-sm btn-danger" (click)="removeSkill(i)"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-        </ng-container>
-      </div>
       @if(editIndex !== null){
-        <button type="submit" class="btn btn-warning w-25" (click)="updateEmployee()">Update Employee</button>
+        <button type="submit" class="btn btn-warning btnFrom" (click)="updateEmployee()">Update Employee</button>
       } @else {
-        <button type="submit" class="btn btn-success w-25">Add Employee</button>
+        <button type="submit" class="btn btn-success btnFrom">Add Employee</button>
       }
     </form>
 
-    <div class="filters d-flex gap-2 my-2">
-      <input class="form-control" type="text" placeholder="Filter By Name" (input)="filterByName($event)">
-      <input class="form-control" type="text" placeholder="Filter By Email" (input)="filterByEmail($event)">
-      <input class="form-control" type="text" placeholder="Filter By Gender" (input)="filterByGender($event)">
-      <input class="form-control" type="text" placeholder="Filter By Skills" (input)="filterBySkills($event)">
+    <div class="filters my-2">
+      <div class="row g-2">
+        <div class="col-sm-12 col-md-3">
+          <input class="form-control" type="text" placeholder="Filter By Name" (input)="filterByName($event)">
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <input class="form-control" type="text" placeholder="Filter By Email" (input)="filterByEmail($event)">
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <input class="form-control" type="text" placeholder="Filter By Gender" (input)="filterByGender($event)">
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <input class="form-control" type="text" placeholder="Filter By Skills" (input)="filterBySkills($event)">
+        </div>
+      </div>
     </div>
 
     <div class="table-responsive shadow-lg p-2">

@@ -10,3 +10,11 @@ h1, h4 {
 .cr{
   cursor: pointer;
 }
+.btnFrom{
+  width: 200px;
+}
+@media (max-width:400px) {
+  .btnFrom{
+    width: 100%;
+  }
+}

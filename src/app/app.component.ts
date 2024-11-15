@@ -1,5 +1,5 @@
-import { NgClass, NgFor } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { isPlatformBrowser, NgClass, NgFor } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -21,13 +21,16 @@ interface IEmployee{
 export class AppComponent implements OnInit{
   private readonly _FormBuilder = inject(FormBuilder)
   private readonly _ToastrService = inject(ToastrService)
+  private readonly _PLATFORM_ID = inject(PLATFORM_ID)
   employeeList:IEmployee[] = []
 
 
   ngOnInit(): void {
-    let saveData = localStorage.getItem('data')
-    this.employeeList = saveData ? JSON.parse(saveData) : [];
-    this.filterEmployeeList = [...this.employeeList]
+    if(isPlatformBrowser(this._PLATFORM_ID)){
+      let saveData = localStorage.getItem('data')
+      this.employeeList = saveData ? JSON.parse(saveData) : [];
+      this.filterEmployeeList = [...this.employeeList]
+    }
   }
 
   employeeFrom:FormGroup = this._FormBuilder.group({
@@ -59,8 +62,10 @@ export class AppComponent implements OnInit{
 
   removeEmplyee(index:number){
     let removeItem = this.employeeList.splice(index,1)
-    localStorage.setItem('data', JSON.stringify(this.employeeList))
-    this.filterEmployeeList = [...this.employeeList]
+    if(isPlatformBrowser(this._PLATFORM_ID)){
+      localStorage.setItem('data', JSON.stringify(this.employeeList))
+      this.filterEmployeeList = [...this.employeeList]
+    }
     removeItem.forEach(el=>{
       this._ToastrService.error(`Done! Delete ${el.name}`)
     })
@@ -92,9 +97,10 @@ export class AppComponent implements OnInit{
       updatedEmployee.skills = updatedEmployee.skills.map((skillGroup:any) => skillGroup.skill)
       this.employeeList[this.editIndex] = updatedEmployee
 
-      localStorage.setItem('data', JSON.stringify(this.employeeList));
-
-      this.filterEmployeeList = [...this.employeeList]
+      if(isPlatformBrowser(this._PLATFORM_ID)){
+        localStorage.setItem('data', JSON.stringify(this.employeeList));
+        this.filterEmployeeList = [...this.employeeList]
+      }
 
       this._ToastrService.success(`Done! Update Employee's Data`)
       this.employeeFrom.reset();
@@ -115,9 +121,10 @@ export class AppComponent implements OnInit{
 
       this.employeeList.push(employeeData)
 
-      localStorage.setItem('data', JSON.stringify(this.employeeList))
-
-      this.filterEmployeeList = [...this.employeeList];
+      if(isPlatformBrowser(this._PLATFORM_ID)){
+        localStorage.setItem('data', JSON.stringify(this.employeeList))
+        this.filterEmployeeList = [...this.employeeList];
+      }
 
       this.employeeFrom.reset()
       this.skills().clear()
