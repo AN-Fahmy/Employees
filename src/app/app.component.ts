@@ -1,5 +1,5 @@
-import { isPlatformBrowser, NgClass, NgFor } from '@angular/common';
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { NgClass, NgFor } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -21,17 +21,13 @@ interface IEmployee{
 export class AppComponent implements OnInit{
   private readonly _FormBuilder = inject(FormBuilder)
   private readonly _ToastrService = inject(ToastrService)
-  private readonly _PLATFORM_ID = inject(PLATFORM_ID)
   employeeList:IEmployee[] = []
 
 
   ngOnInit(): void {
-    if(isPlatformBrowser(this._PLATFORM_ID)){
-      let saveData = localStorage.getItem('data')
-      this.employeeList = JSON.parse(saveData!)
-      console.log(this.employeeList);
-      this.filterEmployeeList = this.employeeList
-    }
+    let saveData = localStorage.getItem('data')
+    this.employeeList = saveData ? JSON.parse(saveData) : [];
+    this.filterEmployeeList = [...this.employeeList]
   }
 
   employeeFrom:FormGroup = this._FormBuilder.group({
@@ -63,9 +59,8 @@ export class AppComponent implements OnInit{
 
   removeEmplyee(index:number){
     let removeItem = this.employeeList.splice(index,1)
-    if(isPlatformBrowser(this._PLATFORM_ID)){
-      localStorage.setItem('data', JSON.stringify(this.employeeList))
-    }
+    localStorage.setItem('data', JSON.stringify(this.employeeList))
+    this.filterEmployeeList = [...this.employeeList]
     removeItem.forEach(el=>{
       this._ToastrService.error(`Done! Delete ${el.name}`)
     })
@@ -89,7 +84,6 @@ export class AppComponent implements OnInit{
     employee.skills.forEach((skill: string) => {
       skillsFormArray.push(this._FormBuilder.group({ skill }));
     });
-
   }
 
   updateEmployee(){
@@ -98,9 +92,9 @@ export class AppComponent implements OnInit{
       updatedEmployee.skills = updatedEmployee.skills.map((skillGroup:any) => skillGroup.skill)
       this.employeeList[this.editIndex] = updatedEmployee
 
-      if(isPlatformBrowser(this._PLATFORM_ID)){
-        localStorage.setItem('data', JSON.stringify(this.employeeList));
-      }
+      localStorage.setItem('data', JSON.stringify(this.employeeList));
+
+      this.filterEmployeeList = [...this.employeeList]
 
       this._ToastrService.success(`Done! Update Employee's Data`)
       this.employeeFrom.reset();
@@ -117,11 +111,13 @@ export class AppComponent implements OnInit{
       this._ToastrService.success('Greate!! Add New Employee')
       const employeeData = this.employeeFrom.value;
       employeeData.skills = employeeData.skills.map((skillGroup:any)=> skillGroup.skill)
+      console.log(employeeData);
 
-      if(isPlatformBrowser(this._PLATFORM_ID)){
-        this.employeeList.push(employeeData)
-        localStorage.setItem('data', JSON.stringify(this.employeeList))
-      }
+      this.employeeList.push(employeeData)
+
+      localStorage.setItem('data', JSON.stringify(this.employeeList))
+
+      this.filterEmployeeList = [...this.employeeList];
 
       this.employeeFrom.reset()
       this.skills().clear()
@@ -169,19 +165,15 @@ export class AppComponent implements OnInit{
 
   filterBySkills(event:any){
     let searchValue = event.target.value.toLowerCase();
-    let filterSkillsData = [...this.employeeList];
-    console.log(filterSkillsData);
 
     if (searchValue) {
-      filterSkillsData = filterSkillsData.filter(employee =>{
+      this.filterEmployeeList = this.employeeList.filter(employee =>{
         let skill = employee.newSkill.toLowerCase().includes(searchValue)
         let newskills = employee.skills.some((skill: any) => skill.toLowerCase().includes(searchValue))
         return skill || newskills
       });
+    } else {
+      this.filterEmployeeList = [...this.employeeList]
     }
-
-    this.filterEmployeeList = filterSkillsData;
   }
-
-
 }
